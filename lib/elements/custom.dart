@@ -9,7 +9,6 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       borderRadius: BorderRadius.circular(5),
-      elevation: 4,
       shadowColor: Colors.black54,
       child: TextField(
         obscureText: obscureText,
