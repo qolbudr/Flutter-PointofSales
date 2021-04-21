@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
-  CustomTextField({this.controller, this.hintText, this.obscureText});
+  CustomTextField({this.controller, this.hintText, this.obscureText, this.focus});
   final TextEditingController controller;
+  final FocusNode focus;
   final String hintText;
   final bool obscureText;
   @override
@@ -10,16 +11,10 @@ class CustomTextField extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        boxShadow: [
-         BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ), 
-        ]
+        border: Border.all(color: Colors.grey[200])
       ),
       child: TextField(
+        focusNode: focus,
         obscureText: obscureText,
         controller: controller,
         decoration: InputDecoration(
@@ -28,9 +23,9 @@ class CustomTextField extends StatelessWidget {
           fontSize: 14,
           color: Colors.black38,
         ),
-        contentPadding: EdgeInsets.fromLTRB(20, 10, 40, 10),
-        filled: true, 
-        fillColor: Colors.white,
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical:10),
+        // filled: true, 
+        // fillColor: Colors.white,
           enabledBorder: UnderlineInputBorder(
             borderRadius: BorderRadius.circular(5), 
             borderSide: BorderSide(color: Colors.transparent)
@@ -45,17 +40,47 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
-class CustomButton extends StatelessWidget {
-  CustomButton({this.buttonPressed, this.buttonText});
+
+class ButtonPrimary extends StatelessWidget {
+  ButtonPrimary({this.buttonPressed, this.buttonText});
   final void Function() buttonPressed;
   final String buttonText;
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
+      style: ButtonStyle(
+        elevation: MaterialStateProperty.all<double>(0),
+      ),
       onPressed: buttonPressed,
       child: Center(
         heightFactor: 3,
         child: Text(buttonText, style: TextStyle(fontSize: 14, color: Colors.white))
+      )
+    );
+  }
+}
+
+class ButtonOutlined extends StatelessWidget {
+  ButtonOutlined({this.buttonPressed, this.buttonText});
+  final void Function() buttonPressed;
+  final String buttonText;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[200])
+      ),
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          elevation: MaterialStateProperty.all<double>(0),
+          shadowColor: MaterialStateProperty.all<Color>(Colors.transparent),
+        ),
+        onPressed: buttonPressed,
+        child: Center(
+          heightFactor: 3,
+          child: Text(buttonText, style: TextStyle(fontSize: 14, color: Colors.black))
+        )
       )
     );
   }

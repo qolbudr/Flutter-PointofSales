@@ -42,7 +42,7 @@ class _SplashState extends State<Splash> {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     // if(prefs.getString("loginToken") != null) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
-        return Login();
+        return Prepage();
       }));
     // } else {
       // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
@@ -81,6 +81,70 @@ class _SplashState extends State<Splash> {
           ),
         ),
       )
+    );
+  }
+}
+
+class Prepage extends StatefulWidget {
+  @override
+  _PrepageState createState() => new _PrepageState();
+}
+
+class _PrepageState extends State<Prepage> {
+
+  void gotoLogin() {
+    Navigator.push(
+      context, 
+      PageTransition(
+          child: Login(), 
+          type: PageTransitionType.rightToLeft,
+          inheritTheme: true,
+          ctx: context
+      )
+    );
+  }
+
+  void gotoRegister() {
+    Navigator.push(
+      context, 
+      PageTransition(
+          child: Register(), 
+          type: PageTransitionType.rightToLeft,
+          inheritTheme: true,
+          ctx: context
+      )
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        padding: EdgeInsets.all(30),
+        color: Colors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height*0.25),
+            Icon(Icons.shopping_bag_outlined, color: Colors.blue, size: 100),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  custom.ButtonPrimary(buttonPressed: gotoRegister, buttonText: "Sign up"),
+                  SizedBox(height: 10),
+                  custom.ButtonOutlined(buttonPressed: gotoLogin, buttonText: "Sign in"),
+                  SizedBox(height: 20),
+                  Text('Version 1.0.0 - Build.1', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                ],
+              )
+            ),
+          ],
+        )
+      ),
     );
   }
 }
@@ -131,33 +195,25 @@ class _LoginState extends State<Login> {
               showStatus = true;
             }
           });
-        print(json);
         }));
       });
     }
-  }
-
-  void gotoSignUp() {
-    setState(() {
-      Navigator.push(
-        context,
-        PageTransition(
-          child: Register(), 
-          type: PageTransitionType.rightToLeft,
-          inheritTheme: true,
-          ctx: context
-        )
-      );
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return(
       Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          iconTheme: IconThemeData(
+            color: Colors.black,
+          ),
+        ),
         resizeToAvoidBottomInset: false,
         body: Container(
-          padding: EdgeInsets.only(top: 30),
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           color: Colors.white,
@@ -168,29 +224,29 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     LinearProgressIndicator(
-                      backgroundColor: Colors.blue
+                      backgroundColor: Colors.blue,
+                      minHeight: 1,
                     )
                   ],
                 ) : SizedBox(height: 4),
                 Container(
-                  padding: EdgeInsets.all(30),
+                  padding: EdgeInsets.all(40),
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 60),
+                    SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.shopping_bag_outlined, color: Colors.blue, size: 50)
                       ],
                     ),
-                    SizedBox(height: 60),
+                    SizedBox(height: 30),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal:5),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Login to your Account", style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w600)),
                           showStatus ?
                           Container(
                             child: Column(
@@ -206,23 +262,15 @@ class _LoginState extends State<Login> {
                           SizedBox(height: 20),
                           custom.CustomTextField(controller: passwordController, hintText: "Password", obscureText: true),
                           SizedBox(height: 30),
-                          custom.CustomButton(buttonPressed: isLoading ? null : forceLogin, buttonText: "Sign In"),
+                          custom.ButtonPrimary(buttonPressed: isLoading ? null : forceLogin, buttonText: "Sign In"),
                           SizedBox(height: 40),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text('or', style: TextStyle(color: Colors.black54, fontSize: 16)),
+                              Center(
+                                child: Text('Version 1.0.0 - Build.1', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                              ),
                               SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text("Doesnt have an account ? "),
-                                  InkWell(
-                                    child: Text("Sign Up", style: TextStyle(color: Colors.blue)),
-                                    onTap: gotoSignUp,
-                                  )
-                                ],
-                              )
                             ],
                           )
                         ],
@@ -258,7 +306,7 @@ class _RegisterState extends State<Register> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = usernameController.value.text;
     String password = passwordController.value.text;
-    // String cpassword = cpasswordController.value.text;
+    String cpassword = cpasswordController.value.text;
     String email = emailController.value.text;
 
     final response = await http.post(
@@ -270,11 +318,17 @@ class _RegisterState extends State<Register> {
       body: jsonEncode(<String, String> {
         'username': username,
         'password': password,
-        'email': email
+        'email': email,
+        'password_confirmation': cpassword,
       }),
     );
 
     isLoading = true;
+
+    setState(() {
+      message = " ";
+      showStatus = false;
+    });
 
     if(this.mounted) {
     json = jsonDecode(response.body);
@@ -285,13 +339,14 @@ class _RegisterState extends State<Register> {
             if(response.statusCode == 201) {
               isLoading = false;
               showStatus = false;
-              gotoLogin();
             } else {
               isLoading = false;
               showStatus = true;
               try{
                 json["errors"].forEach((key, value) {
-                  message = "$value";
+                  if(message == " ") {
+                    message = value[0];
+                  }
                 });
               } on FormatException catch(e) {
                 message = "Something was wrong pleasr check your input";
@@ -303,32 +358,23 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  void gotoLogin() {
-    setState(() {
-      Navigator.pop(
-        context,
-        PageTransition(
-          type: PageTransitionType.leftToRight,
-          child: Login()
-        )
-      );
-    });
-  } 
-
   @override
   Widget build(BuildContext context) {
     return(
       Scaffold(
         appBar: AppBar(
-          elevation: 0,
+          elevation: 3,
+          shadowColor: Colors.black54,
           iconTheme: IconThemeData(
             color: Colors.black
           ),
           backgroundColor: Colors.white,
+          title: Text("Sign Up", style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold))
         ),
         body: 
         Container(
         width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
         color: Colors.white,
          child: SingleChildScrollView(
             child: Stack(
@@ -338,7 +384,8 @@ class _RegisterState extends State<Register> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     LinearProgressIndicator(
-                      backgroundColor: Colors.blue
+                      backgroundColor: Colors.blue,
+                      minHeight: 1,
                     )
                   ],
                 ) : SizedBox(height: 4),
@@ -347,19 +394,14 @@ class _RegisterState extends State<Register> {
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.shopping_bag_outlined, color: Colors.blue, size: 50)
-                      ],
-                    ),
-                    SizedBox(height: 60),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal:5),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Register a new Account", style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w600)),
+                          Text("Hello please complete form below", style: TextStyle(color: Colors.black87, fontSize: 15)),
+                          SizedBox(height: 10),
+                          Text("User Data", style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.bold)),
                           showStatus ?
                           Container(
                             child: Column(
@@ -379,25 +421,7 @@ class _RegisterState extends State<Register> {
                           SizedBox(height: 20),
                           custom.CustomTextField(controller: cpasswordController, hintText: "Password Confirmation", obscureText: true),
                           SizedBox(height: 30),
-                          custom.CustomButton(buttonPressed: isLoading ? null : forceRegister, buttonText: "Sign Up"),
-                          SizedBox(height: 40),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text('or', style: TextStyle(color: Colors.black54, fontSize: 16)),
-                              SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text("Already have an account ? "),
-                                  InkWell(
-                                    child: Text("Sign In", style: TextStyle(color: Colors.blue)),
-                                    onTap: gotoLogin,
-                                  )
-                                ],
-                              )
-                            ],
-                          )
+                          custom.ButtonPrimary(buttonPressed: isLoading ? null : forceRegister, buttonText: "Sign Up"),
                         ],
                       ),
                     ),
