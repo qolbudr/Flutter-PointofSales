@@ -143,7 +143,7 @@ class _LoginState extends State<Login> {
         context,
         PageTransition(
           child: Register(), 
-          type: PageTransitionType.rightToLeftWithFade,
+          type: PageTransitionType.rightToLeft,
           inheritTheme: true,
           ctx: context
         )
@@ -256,7 +256,13 @@ class _RegisterState extends State<Register> {
 
   void gotoLogin() {
     setState(() {
-      Navigator.pop(context);
+      Navigator.pop(
+        context,
+        PageTransition(
+          type: PageTransitionType.leftToRight,
+          child: Login()
+        )
+      );
     });
   } 
 
