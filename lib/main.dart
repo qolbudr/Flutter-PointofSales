@@ -247,13 +247,60 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   bool isLoading = false;
   bool showStatus = false;
+  Map<String, dynamic> json;
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final emailController = TextEditingController();
   final cpasswordController = TextEditingController();
+  String message = " ";
 
   void forceRegister() async {
-    
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = usernameController.value.text;
+    String password = passwordController.value.text;
+    // String cpassword = cpasswordController.value.text;
+    String email = emailController.value.text;
+
+    final response = await http.post(
+      Uri.parse("$url/api/auth/signup"),
+      headers: <String, String> {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: jsonEncode(<String, String> {
+        'username': username,
+        'password': password,
+        'email': email
+      }),
+    );
+
+    isLoading = true;
+
+    if(this.mounted) {
+    json = jsonDecode(response.body);
+    setState(() {
+      var duration = new Duration(seconds: 2);
+        Timer(duration, (() {
+          setState(() {
+            if(response.statusCode == 201) {
+              isLoading = false;
+              showStatus = false;
+              gotoLogin();
+            } else {
+              isLoading = false;
+              showStatus = true;
+              try{
+                json["errors"].forEach((key, value) {
+                  message = "$value";
+                });
+              } on FormatException catch(e) {
+                message = "Something was wrong pleasr check your input";
+              }
+            }
+          });
+        }));
+      });
+    }
   }
 
   void gotoLogin() {
@@ -318,7 +365,7 @@ class _RegisterState extends State<Register> {
                             child: Column(
                               children: [
                                 SizedBox(height: 20),
-                                Text("Login failed wrong username/password", style: TextStyle(color: Colors.red, fontSize: 14)),
+                                Text(message, style: TextStyle(color: Colors.red, fontSize: 14)),
                               ],
                             )
                           )
