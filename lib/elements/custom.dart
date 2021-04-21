@@ -7,9 +7,18 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   @override
   Widget build(BuildContext context) {
-    return Material(
-      borderRadius: BorderRadius.circular(5),
-      shadowColor: Colors.black54,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        boxShadow: [
+         BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
+          ), 
+        ]
+      ),
       child: TextField(
         obscureText: obscureText,
         controller: controller,

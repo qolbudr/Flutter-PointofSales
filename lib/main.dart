@@ -100,7 +100,6 @@ class _LoginState extends State<Login> {
     Map<String, dynamic> json;
     String username = usernameController.value.text;
     String password = passwordController.value.text;
-    isLoading = true;
 
     final response = await http.post(
       Uri.parse("$url/api/auth/login"),
@@ -113,27 +112,36 @@ class _LoginState extends State<Login> {
       })
     );
 
+    isLoading = true;
+
     if(this.mounted) {
     setState(() {
-        if(response.statusCode == 200) {
-          json = jsonDecode(response.body);
-          isLoading = false;
-          showStatus = false;
-          prefs.setString("loginToken", json["access_token"]);
-        } else {
-          isLoading = false;
-          json = {"message":"Login failed wrong username/password"};
-          showStatus = true;
-        }
+      var duration = new Duration(seconds: 2);
+        Timer(duration, (() {
+          setState(() {
+            if(response.statusCode == 200) {
+              json = jsonDecode(response.body);
+              isLoading = false;
+              showStatus = false;
+              prefs.setString("loginToken", json["access_token"]);
+            } else {
+              isLoading = false;
+              json = {"message":"Login failed wrong username/password"};
+              showStatus = true;
+            }
+          });
+        print(json);
+        }));
       });
     }
   }
 
-  
-
   void gotoSignUp() {
     setState(() {
-      print(url);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Register()),
+      );
     });
   }
 
@@ -141,12 +149,12 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return(
       Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           padding: EdgeInsets.only(top: 30),
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          color: Colors.grey[100],
-          child: SingleChildScrollView(
+          color: Colors.white,
             child: Stack(
               children: [
                 isLoading ? 
@@ -178,21 +186,21 @@ class _LoginState extends State<Login> {
                         children: [
                           Text("Login to your Account", style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w600)),
                           showStatus ?
-                            Container(
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 20),
-                                  Text("Login failed wrong username/password", style: TextStyle(color: Colors.red, fontSize: 14)),
-                                ],
-                              )
+                          Container(
+                            child: Column(
+                              children: [
+                                SizedBox(height: 20),
+                                Text("Login failed wrong username/password", style: TextStyle(color: Colors.red, fontSize: 14)),
+                              ],
                             )
+                          )
                           : SizedBox(height: 0),
                           SizedBox(height: 20),
                           custom.CustomTextField(controller: usernameController, hintText: "Username", obscureText: false),
                           SizedBox(height: 20),
                           custom.CustomTextField(controller: passwordController, hintText: "Password", obscureText: true),
                           SizedBox(height: 30),
-                          custom.CustomButton(buttonPressed: forceLogin, buttonText: "Sign In"),
+                          custom.CustomButton(buttonPressed: isLoading ? null : forceLogin, buttonText: "Sign In"),
                           SizedBox(height: 40),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -216,10 +224,42 @@ class _LoginState extends State<Login> {
                     ),
                   ],
                 ),
+              )
+            ]
+          )  
+        )
+      )
+    );
+  }
+}
+
+class Register extends StatefulWidget {
+  @override
+  _RegisterState createState() => new _RegisterState();
+}
+
+class _RegisterState extends State<Register> {
+  @override
+  Widget build(BuildContext context) {
+    return(
+      Scaffold(
+        body: Container(
+          padding: EdgeInsets.only(top: 30),
+          child: Stack(
+            children: [
+              LinearProgressIndicator(
+                backgroundColor: Colors.blue
+              ),
+              Container(
+                padding: EdgeInsets.all(30),
+                child: Column(
+                  children: [
+                    
+                  ]
                 )
-              ]
-            )
-          ),
+              )
+            ],
+          )
         )
       )
     );
