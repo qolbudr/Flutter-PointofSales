@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'elements/custom.dart' as custom;
 import 'elements/config.dart';
+import 'page/home.dart' as home;
 
 void main() {
   runApp(new MaterialApp(
@@ -39,17 +40,16 @@ class _SplashState extends State<Splash> {
   }
 
   void checkLogin() async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // if(prefs.getString("loginToken") != null) {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if(prefs.getString("loginToken") != null) {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
+        return home.Home();
+      }));
+    } else {
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
         return Prepage();
       }));
-    // } else {
-      // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
-      //   return false;
-      // }));
-      // return;
-    // }
+    }
   }
 
   void changeSplash() {
@@ -189,6 +189,9 @@ class _LoginState extends State<Login> {
               isLoading = false;
               showStatus = false;
               prefs.setString("loginToken", json["access_token"]);
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
+                return home.Home();
+              }));
             } else {
               isLoading = false;
               json = {"message":"Login failed wrong username/password"};
