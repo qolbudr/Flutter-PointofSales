@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'elements/custom.dart' as custom;
 import 'elements/config.dart';
@@ -140,7 +141,12 @@ class _LoginState extends State<Login> {
     setState(() {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => Register()),
+        PageTransition(
+          child: Register(), 
+          type: PageTransitionType.rightToLeftWithFade,
+          inheritTheme: true,
+          ctx: context
+        )
       );
     });
   }
@@ -239,27 +245,103 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  bool isLoading = false;
+  bool showStatus = false;
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  void forceRegister() async {
+    
+  }
+
+  void gotoLogin() {
+    setState(() {
+      Navigator.pop(context);
+    });
+  } 
+
   @override
   Widget build(BuildContext context) {
     return(
       Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           padding: EdgeInsets.only(top: 30),
-          child: Stack(
-            children: [
-              LinearProgressIndicator(
-                backgroundColor: Colors.blue
-              ),
-              Container(
-                padding: EdgeInsets.all(30),
-                child: Column(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          color: Colors.white,
+            child: Stack(
+              children: [
+                isLoading ? 
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    
-                  ]
-                )
+                    LinearProgressIndicator(
+                      backgroundColor: Colors.blue
+                    )
+                  ],
+                ) : SizedBox(height: 4),
+                Container(
+                  padding: EdgeInsets.all(30),
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 60),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.shopping_bag_outlined, color: Colors.blue, size: 50)
+                      ],
+                    ),
+                    SizedBox(height: 60),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal:5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Login to your Account", style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w600)),
+                          showStatus ?
+                          Container(
+                            child: Column(
+                              children: [
+                                SizedBox(height: 20),
+                                Text("Login failed wrong username/password", style: TextStyle(color: Colors.red, fontSize: 14)),
+                              ],
+                            )
+                          )
+                          : SizedBox(height: 0),
+                          SizedBox(height: 20),
+                          custom.CustomTextField(controller: usernameController, hintText: "Username", obscureText: false),
+                          SizedBox(height: 20),
+                          custom.CustomTextField(controller: passwordController, hintText: "Password", obscureText: true),
+                          SizedBox(height: 30),
+                          custom.CustomButton(buttonPressed: isLoading ? null : forceRegister, buttonText: "Sign Up"),
+                          SizedBox(height: 40),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text('or', style: TextStyle(color: Colors.black54, fontSize: 16)),
+                              SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Already have an account ? "),
+                                  InkWell(
+                                    child: Text("Sign In", style: TextStyle(color: Colors.blue)),
+                                    onTap: gotoLogin,
+                                  )
+                                ],
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               )
-            ],
-          )
+            ]
+          )  
         )
       )
     );
