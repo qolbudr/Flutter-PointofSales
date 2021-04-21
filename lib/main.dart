@@ -249,6 +249,8 @@ class _RegisterState extends State<Register> {
   bool showStatus = false;
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final cpasswordController = TextEditingController();
 
   void forceRegister() async {
     
@@ -270,12 +272,18 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     return(
       Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Container(
-          padding: EdgeInsets.only(top: 30),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          color: Colors.white,
+        appBar: AppBar(
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: Colors.black
+          ),
+          backgroundColor: Colors.white,
+        ),
+        body: 
+        Container(
+        width: MediaQuery.of(context).size.width,
+        color: Colors.white,
+         child: SingleChildScrollView(
             child: Stack(
               children: [
                 isLoading ? 
@@ -292,7 +300,6 @@ class _RegisterState extends State<Register> {
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 60),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -305,7 +312,7 @@ class _RegisterState extends State<Register> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Login to your Account", style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w600)),
+                          Text("Register a new Account", style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w600)),
                           showStatus ?
                           Container(
                             child: Column(
@@ -319,7 +326,11 @@ class _RegisterState extends State<Register> {
                           SizedBox(height: 20),
                           custom.CustomTextField(controller: usernameController, hintText: "Username", obscureText: false),
                           SizedBox(height: 20),
+                          custom.CustomTextField(controller: emailController, hintText: "Email", obscureText: false),
+                          SizedBox(height: 20),
                           custom.CustomTextField(controller: passwordController, hintText: "Password", obscureText: true),
+                          SizedBox(height: 20),
+                          custom.CustomTextField(controller: cpasswordController, hintText: "Password Confirmation", obscureText: true),
                           SizedBox(height: 30),
                           custom.CustomButton(buttonPressed: isLoading ? null : forceRegister, buttonText: "Sign Up"),
                           SizedBox(height: 40),
@@ -348,6 +359,7 @@ class _RegisterState extends State<Register> {
               )
             ]
           )  
+        )
         )
       )
     );
