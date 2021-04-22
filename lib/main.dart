@@ -401,7 +401,7 @@ class _RegisterState extends State<Register> {
                     message = value[0];
                   }
                 });
-              } on FormatException catch(e) {
+              } on PlatformException {
                 message = "Something was wrong pleasr check your input";
               }
             }

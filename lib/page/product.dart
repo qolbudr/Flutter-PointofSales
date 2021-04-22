@@ -17,7 +17,9 @@ class _ProductState extends State<Product> {
   String _scanBarcode;
   bool isLoading = true;
   bool haveItem = false;
+  int productCount;
   final searchController = TextEditingController();
+  Map<String, dynamic> product;
 
   Future<void> scanBarcodeNormal() async {
     String barcodeScanRes;
@@ -39,7 +41,7 @@ class _ProductState extends State<Product> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('loginToken');
     String key = "Bearer $token";
-    Map<String, dynamic> json;
+    Map<String, dynamic> json;    
 
     final response = await http.get(
       Uri.parse("$url/api/auth/products"),
@@ -56,6 +58,8 @@ class _ProductState extends State<Product> {
           if(json.containsKey('name')) {
             haveItem = true;
             isLoading = false;
+            productCount = json["data"].length;
+            product = json["data"];
           } else {
             isLoading = false;
           }
@@ -107,40 +111,15 @@ class _ProductState extends State<Product> {
             SingleChildScrollView(
               child: Container(
                 padding: EdgeInsets.only(left: 10, right:10, bottom: 10),
-                child: Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: scanBarcodeNormal,
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                        elevation: MaterialStateProperty.all<double>(0),
-                        overlayColor: MaterialStateProperty.all<Color>(Colors.grey[200]),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: Colors.black12)
-                          )
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(right: 10),
-                              child: Image.asset('images/box.png', width: 40),
-                            ),
-                            Column(
-                              children: [
-                                Text("ajkshkjas", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
-                                Text("ajkshkjas", style: TextStyle(fontSize: 15, color: Colors.black87)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+                child: ListView.builder(
+                  itemCount: productCount,
+                  itemBuilder: (context, index) {
+                    return custom.ListProduct(
+                      img: "https://bwipjs-api.metafloor.com/?bcid=code128&text=${product[index]["products_id"]}",
+                      name: product[index]["name"],
+                      buttonPressed: scanBarcodeNormal,
+                    );
+                  }
                 )
               ),
             ),

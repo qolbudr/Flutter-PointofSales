@@ -74,7 +74,7 @@ class ButtonOutlined extends StatelessWidget {
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
           elevation: MaterialStateProperty.all<double>(0),
-          shadowColor: MaterialStateProperty.all<Color>(Colors.transparent),
+          overlayColor: MaterialStateProperty.all<Color>(Colors.grey[200]),
         ),
         onPressed: buttonPressed,
         child: Center(
@@ -117,5 +117,45 @@ class PanelButton extends StatelessWidget {
         )
       )
     );
+  }
+}
+
+class ListProduct extends StatelessWidget {
+  ListProduct({this.buttonPressed, this.price, this.name, this.img});
+  final void Function() buttonPressed;
+  final String price, name, img;
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: buttonPressed,
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+        elevation: MaterialStateProperty.all<double>(0),
+        overlayColor: MaterialStateProperty.all<Color>(Colors.grey[200]),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.black12)
+          )
+        ),
+        padding: EdgeInsets.symmetric(vertical: 15),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              margin: EdgeInsets.only(right: 10),
+              child: Image.network(img, width: 40),
+            ),
+            Column(
+              children: [
+                Text(name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
+                Text("Rp $price", style: TextStyle(fontSize: 15, color: Colors.black87)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );         
   }
 }
