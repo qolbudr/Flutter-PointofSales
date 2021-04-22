@@ -85,3 +85,37 @@ class ButtonOutlined extends StatelessWidget {
     );
   }
 }
+
+class PanelButton extends StatelessWidget {
+  PanelButton({this.buttonPressed, this.buttonText, this.buttonIcon});
+  final void Function() buttonPressed;
+  final IconData buttonIcon;
+  final String buttonText;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.28,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[200])
+      ),
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          elevation: MaterialStateProperty.all<double>(0),
+          overlayColor: MaterialStateProperty.all<Color>(Colors.grey[200]),
+        ),
+        onPressed: buttonPressed,
+        child: Center(
+          heightFactor: 2,
+          child: Column(
+            children: [
+              Icon(buttonIcon, color: Colors.blue),
+              SizedBox(height: 10),
+              Text(buttonText, style: TextStyle(fontSize: 12, color: Colors.black)),
+            ],
+          )
+        )
+      )
+    );
+  }
+}

@@ -36,12 +36,13 @@ class _SplashState extends State<Splash> {
 
   setSplash() async {
     var duration = Duration(seconds: 2);
-    return Timer(duration, changeSplash);
+    return Timer(duration, checkLogin);
   }
 
   void checkLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if(prefs.getString("loginToken") != null) {
+      await getUser();
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
         return home.Home();
       }));
@@ -52,8 +53,36 @@ class _SplashState extends State<Splash> {
     }
   }
 
-  void changeSplash() {
-    checkLogin();
+  Future getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('loginToken');
+    String key = "Bearer $token";
+    Map<String, dynamic> json;
+
+    final response = await http.get(
+      Uri.parse("$url/api/auth/user"),
+      headers: <String, String> {
+        'Accept': 'application/json',
+        'Authorization': key,
+      },
+    );
+
+    if(response.statusCode == 200) {
+      json = jsonDecode(response.body);
+      prefs.setInt('userId', json['id']);
+      prefs.setString('userName', json['username']);
+      prefs.setString('userEmail', json['email']);
+    } else {
+      logout();
+    }
+  }
+
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
+      return Prepage();
+    }));
   }
 
   @override
@@ -180,28 +209,51 @@ class _LoginState extends State<Login> {
     isLoading = true;
 
     if(this.mounted) {
-    setState(() {
-      var duration = new Duration(seconds: 2);
-        Timer(duration, (() {
-          setState(() {
-            if(response.statusCode == 200) {
-              json = jsonDecode(response.body);
-              isLoading = false;
-              showStatus = false;
-              prefs.setString("loginToken", json["access_token"]);
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
-                return home.Home();
-              }));
-            } else {
-              isLoading = false;
-              json = {"message":"Login failed wrong username/password"};
-              showStatus = true;
-            }
-          });
-        }));
+      setState(() {
+        if(response.statusCode == 200) {
+          json = jsonDecode(response.body);
+          prefs.setString("loginToken", json["access_token"]);
+          getUser();
+        } else {
+          isLoading = false;
+          json = {"message":"Login failed wrong username/password"};
+          showStatus = true;
+        }
       });
     }
   }
+
+  void getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('loginToken');
+    String key = "Bearer $token";
+    Map<String, dynamic> json;
+
+    final response = await http.get(
+      Uri.parse("$url/api/auth/user"),
+      headers: <String, String> {
+        'Accept': 'application/json',
+        'Authorization': key,
+      },
+    );
+
+    if(response.statusCode == 200) {
+      json = jsonDecode(response.body);
+      prefs.setInt('userId', json['id']);
+      prefs.setString('userName', json['username']);
+      prefs.setString('userEmail', json['email']);
+    }
+
+    setState(() {
+      isLoading = false;
+      showStatus = false;
+      int count = 0;
+      Navigator.of(context).popUntil((_) => count++ >= 1);
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
+          return home.Home();
+        }));
+      });
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -306,7 +358,6 @@ class _RegisterState extends State<Register> {
   String message = " ";
 
   void forceRegister() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = usernameController.value.text;
     String password = passwordController.value.text;
     String cpassword = cpasswordController.value.text;
@@ -340,8 +391,7 @@ class _RegisterState extends State<Register> {
         Timer(duration, (() {
           setState(() {
             if(response.statusCode == 201) {
-              isLoading = false;
-              showStatus = false;
+              forceLogin();
             } else {
               isLoading = false;
               showStatus = true;
@@ -360,6 +410,70 @@ class _RegisterState extends State<Register> {
       });
     }
   }
+
+  void forceLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> json;
+    String username = usernameController.value.text;
+    String password = passwordController.value.text;
+
+    final response = await http.post(
+      Uri.parse("$url/api/auth/login"),
+      headers: <String, String> {
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(<String, String> {
+        'username': username,
+        'password': password
+      })
+    );
+
+    if(this.mounted) {
+      setState(() {
+        if(response.statusCode == 200) {
+          json = jsonDecode(response.body);
+          prefs.setString("loginToken", json["access_token"]);
+          getUser();
+        } else {
+          isLoading = false;
+          json = {"message":"Login failed wrong username/password"};
+          showStatus = true;
+        }
+      });
+    }
+  }
+
+  void getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('loginToken');
+    String key = "Bearer $token";
+    Map<String, dynamic> json;
+
+    final response = await http.get(
+      Uri.parse("$url/api/auth/user"),
+      headers: <String, String> {
+        'Accept': 'application/json',
+        'Authorization': key,
+      },
+    );
+
+    if(response.statusCode == 200) {
+      json = jsonDecode(response.body);
+      prefs.setInt('userId', json['id']);
+      prefs.setString('userName', json['username']);
+      prefs.setString('userEmail', json['email']);
+    }
+
+    setState(() {
+      isLoading = false;
+      showStatus = false;
+      int count = 0;
+      Navigator.of(context).popUntil((_) => count++ >= 1);
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
+          return home.Home();
+        }));
+      });
+    }
 
   @override
   Widget build(BuildContext context) {
