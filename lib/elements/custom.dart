@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
-  CustomTextField({this.controller, this.hintText, this.obscureText, this.focus});
+  CustomTextField({this.controller, this.hintText, this.obscureText, this.focus, this.enabled = true, this.type});
   final TextEditingController controller;
   final FocusNode focus;
   final String hintText;
   final bool obscureText;
+  final bool enabled;
+  final TextInputType type;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -14,6 +16,8 @@ class CustomTextField extends StatelessWidget {
         border: Border.all(color: Colors.grey[200])
       ),
       child: TextField(
+        keyboardType: type ?? TextInputType.text,
+        enabled: enabled ?? true,
         focusNode: focus,
         obscureText: obscureText,
         controller: controller,
@@ -23,6 +27,12 @@ class CustomTextField extends StatelessWidget {
           fontSize: 14,
           color: Colors.black38,
         ),
+        disabledBorder: UnderlineInputBorder(
+          borderRadius: BorderRadius.circular(5), 
+          borderSide: BorderSide(color: Colors.transparent)
+        ),
+        filled: enabled ? false : true,
+        fillColor: enabled ? Colors.transparent : Colors.grey[200],
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical:10),
         // filled: true, 
         // fillColor: Colors.white,
@@ -148,9 +158,10 @@ class ListProduct extends StatelessWidget {
               child: Image.network(img, width: 40),
             ),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
-                Text("Rp $price", style: TextStyle(fontSize: 15, color: Colors.black87)),
+                Text(name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+                Text("Rp $price", style: TextStyle(fontSize: 12, color: Colors.black87)),
               ],
             ),
           ],
@@ -158,4 +169,15 @@ class ListProduct extends StatelessWidget {
       ),
     );         
   }
+}
+
+PreferredSizeWidget customAppBar(text)  {
+  return AppBar(
+    elevation: 3,
+    backgroundColor: Colors.white,
+    iconTheme: IconThemeData(
+      color: Colors.black
+    ),
+    title: Text("Products", style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold))
+  );
 }
