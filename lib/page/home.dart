@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
 import '../elements/custom.dart' as custom;
 import '../main.dart' as main;
+import 'product.dart' as product;
 
 class Home extends StatefulWidget {
   @override
@@ -41,6 +42,10 @@ class _HomeState extends State<Home> {
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) {
       return main.Prepage();
     }));
+  }
+
+  void gotoProduct() {
+    Navigator.push(context, PageTransition(child: product.Product(), type: PageTransitionType.rightToLeft));
   }
 
   @override
@@ -112,7 +117,7 @@ class _HomeState extends State<Home> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            custom.PanelButton(buttonPressed: logout, buttonText: "Products", buttonIcon: Icons.shopping_cart_outlined),
+                            custom.PanelButton(buttonPressed: gotoProduct, buttonText: "Products", buttonIcon: Icons.shopping_cart_outlined),
                             custom.PanelButton(buttonPressed: logout, buttonText: "Transaction", buttonIcon: Icons.money_outlined),
                             custom.PanelButton(buttonPressed: logout, buttonText: "Sign out", buttonIcon: Icons.logout),
                           ],
