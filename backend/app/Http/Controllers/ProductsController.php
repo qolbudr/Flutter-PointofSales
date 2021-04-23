@@ -31,7 +31,7 @@ class ProductsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            "products_id" => 'required|integer|min:13',
+            "products_id" => 'required|integer|unique:products|min:13',
             "name" => 'required|string',
             "count" => 'required|integer',
             "price" => 'required|integer'

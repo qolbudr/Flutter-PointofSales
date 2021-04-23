@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
 import '../page/add_product.dart' as add;
+import '../page/edit_product.dart' as edit;
 
 class Product extends StatefulWidget {
   @override
@@ -84,7 +85,7 @@ class _ProductState extends State<Product> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('loginToken');
     String key = "Bearer $token";
-    List<dynamic> json;    
+    List<dynamic> json;   
 
     final response = await http.get(
       Uri.parse("$url/api/auth/products"),
@@ -122,6 +123,7 @@ class _ProductState extends State<Product> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         elevation: 3,
         backgroundColor: Colors.white,
@@ -164,7 +166,23 @@ class _ProductState extends State<Product> {
                       img: "https://bwipjs-api.metafloor.com/?bcid=code128&text=${product[index]["products_id"]}",
                       name: product[index]["name"],
                       price: product[index]["price"].toString(),
-                      buttonPressed: scanBarcodeNormal,
+                      buttonPressed: () => {
+                        Navigator.push(
+                          context,
+                            PageTransition(
+                            child: edit.EditProduct(
+                              id: product[index]["id"].toString(),
+                              productsId: product[index]["products_id"], 
+                              name: product[index]["name"],
+                              price: product[index]["price"].toString(),
+                              stock: product[index]["count"].toString()
+                            ),
+                            type: PageTransitionType.rightToLeft,
+                            inheritTheme: true,
+                            ctx: context
+                        )
+                      )
+                      },
                     );
                   }
                 )

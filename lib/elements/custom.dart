@@ -70,6 +70,26 @@ class ButtonPrimary extends StatelessWidget {
   }
 }
 
+class ButtonDanger extends StatelessWidget {
+  ButtonDanger({this.buttonPressed, this.buttonText});
+  final void Function() buttonPressed;
+  final String buttonText;
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+        elevation: MaterialStateProperty.all<double>(0),
+      ),
+      onPressed: buttonPressed,
+      child: Center(
+        heightFactor: 3,
+        child: Text(buttonText, style: TextStyle(fontSize: 14, color: Colors.white))
+      )
+    );
+  }
+}
+
 class ButtonOutlined extends StatelessWidget {
   ButtonOutlined({this.buttonPressed, this.buttonText});
   final void Function() buttonPressed;
@@ -178,6 +198,6 @@ PreferredSizeWidget customAppBar(text)  {
     iconTheme: IconThemeData(
       color: Colors.black
     ),
-    title: Text("Products", style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold))
+    title: Text(text, style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold))
   );
 }
