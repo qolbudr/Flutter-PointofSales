@@ -4,12 +4,13 @@ import 'package:page_transition/page_transition.dart';
 import '../elements/custom.dart' as custom;
 import '../page/product.dart' as productPage;
 import '../elements/config.dart';
+import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 class AddProduct extends StatefulWidget {
   @override
-  AddProduct({this.productsId, this.name});
+  AddProduct({this.productsId, this.name = ""});
   final String productsId, name;
   AddProductState createState() => AddProductState();
 }
@@ -34,6 +35,7 @@ class AddProductState extends State<AddProduct> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('loginToken');
     String key = "Bearer $token";
+    String message = " ";
 
     final response = await http.post(
       Uri.parse("$url/api/auth/products"),
@@ -43,7 +45,7 @@ class AddProductState extends State<AddProduct> {
       },
       body: <String, dynamic> {
         'products_id': widget.productsId,
-        'name': widget.name,
+        'name': productNameController.text,
         'count': productStockController.value.text,
         'price': productPriceController.value.text,
       },
@@ -60,6 +62,30 @@ class AddProductState extends State<AddProduct> {
             child: productPage.Product(),
             type: PageTransitionType.rightToLeft
           )
+        );
+      } else {
+        Map<String, dynamic> error = jsonDecode(response.body)["errors"];
+        error.forEach((key, value) {
+          if(message == " ") {
+            message = value[0];
+          }
+        });
+
+        AlertDialog errorDialog = AlertDialog(
+          title: Text("Please check your input"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: Text("Close"),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        );
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return errorDialog;
+          },
         );
       }
     });
@@ -90,7 +116,7 @@ class AddProductState extends State<AddProduct> {
                     SizedBox(height: 20),
                     custom.CustomTextField(controller: productIdController, hintText: "Product Id", obscureText: false, enabled: false),
                     SizedBox(height: 20),
-                    custom.CustomTextField(controller: productNameController, hintText: "Name", obscureText: false, enabled: false),
+                    custom.CustomTextField(controller: productNameController, hintText: "Name", obscureText: false, enabled: (productNameController.value.text == "") ? true : false),
                     SizedBox(height: 20),
                     custom.CustomTextField(controller: productPriceController, hintText: "Price (Per Item)", obscureText: false, type: TextInputType.number),
                     SizedBox(height: 20),

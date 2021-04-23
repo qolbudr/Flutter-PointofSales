@@ -45,8 +45,23 @@ class _ProductState extends State<Product> {
             content: Text("Items not found in our database."),
             actions: [
               TextButton(
-                child: Text("OK"),
+                child: Text("Close"),
                 onPressed: () => Navigator.pop(context),
+              ),
+              TextButton(
+                child: Text("Add Manualy"),
+                onPressed: () => {
+                  Navigator.pop(context),
+                    Navigator.push(
+                      context,
+                        PageTransition(
+                        child: add.AddProduct(productsId: barcodeScanRes),
+                        type: PageTransitionType.rightToLeft,
+                        inheritTheme: true,
+                        ctx: context
+                    )
+                  )
+                },
               )
             ],
           );
