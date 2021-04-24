@@ -118,10 +118,12 @@ class _HomeState extends State<Home> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             custom.PanelButton(buttonPressed: gotoProduct, buttonText: "Products", buttonIcon: Icons.shopping_cart_outlined),
-                            custom.PanelButton(buttonPressed: logout, buttonText: "Transaction", buttonIcon: Icons.money_outlined),
+                            custom.PanelButton(buttonPressed: logout, buttonText: "Transaction", buttonIcon: Icons.business_center_outlined),
                             custom.PanelButton(buttonPressed: logout, buttonText: "Sign out", buttonIcon: Icons.logout),
                           ],
                         ),
+                        SizedBox(height: 20),
+                        custom.TransactionChart(),
                       ],
                     ),
                   )  

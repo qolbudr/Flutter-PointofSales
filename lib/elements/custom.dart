@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
-
+import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'config.dart';
+import 'dart:convert';
+import "package:intl/intl.dart";
 class CustomTextField extends StatelessWidget {
-  CustomTextField({this.controller, this.hintText, this.obscureText, this.focus, this.enabled = true, this.type});
+  CustomTextField({this.controller, this.hintText, this.obscureText, this.focus, this.enabled = true, this.type, this.changed});
   final TextEditingController controller;
+  final void Function(String) changed;
   final FocusNode focus;
   final String hintText;
   final bool obscureText;
@@ -19,6 +25,7 @@ class CustomTextField extends StatelessWidget {
         keyboardType: type ?? TextInputType.text,
         enabled: enabled ?? true,
         focusNode: focus,
+        onChanged: changed,
         obscureText: obscureText,
         controller: controller,
         decoration: InputDecoration(
@@ -200,4 +207,231 @@ PreferredSizeWidget customAppBar(text)  {
     ),
     title: Text(text, style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold))
   );
+}
+
+class TransactionChart extends StatefulWidget {
+  @override
+  _TransactionChart createState() => _TransactionChart();
+}
+
+class _TransactionChart extends State<TransactionChart> { 
+  String weekNumber = '0';
+  double maxValue = 0;
+  List <dynamic> totalTransaction;
+  List <FlSpot> transactionChart = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1.23,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.blue,
+              Color(0xff64b5f6),
+            ],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
+        ),
+        child: Stack(
+          children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const SizedBox(
+                  height: 37,
+                ),
+                Text(
+                  "Week $weekNumber",
+                  style: TextStyle(
+                    color: Colors.white54,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 4,
+                ),
+                const Text(
+                  'Transactions',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 37,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0, left: 6.0),
+                    child: LineChart(
+                      transactionData(),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void initState() {
+    super.initState();
+    setState(() {
+      totalTransaction = [0];
+      getWeekChart();
+    });
+  }
+
+  void getWeekChart() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('loginToken');
+    String key = "Bearer $token";
+    Map<String, dynamic> data;
+
+    final response = await http.get(
+      Uri.parse("$url/api/auth/transaction/week"),
+      headers: <String, String> {
+        'Accept': 'application/json',
+        'Authorization': key,
+      },
+    );
+
+    if(response.statusCode == 200) {
+      setState(() {
+        data = jsonDecode(response.body);
+        totalTransaction = data['data']['totalTransaction'];
+        weekNumber = data['data']['weekNumber'].toString();
+        maxValue = reciprocal(data['data']['maxValue'].toDouble());
+        getFlSpot();
+      });
+    }
+  }
+
+  String getYLabel(value) {
+    var data;
+    totalTransaction.forEach((total) {
+      if(value == total) {
+        data = NumberFormat.compactCurrency(
+          decimalDigits: 0,
+          symbol: '',
+        ).format(total);
+      }
+    });
+    return data;
+  }
+
+  double reciprocal(double d) => d/1;
+
+  void getFlSpot() {
+    double i = 0;
+    totalTransaction.forEach((value) {
+      transactionChart.add(FlSpot(i, reciprocal(value.toDouble())));
+      i++;
+    });
+  }
+
+  LineChartData transactionData() {
+  return LineChartData(
+    lineTouchData: LineTouchData(
+      enabled: false,
+    ),
+    gridData: FlGridData(
+      show: false,
+    ),
+    titlesData: FlTitlesData(
+      bottomTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 22,
+        getTextStyles: (value) => const TextStyle(
+          color: Colors.white,
+          fontSize: 9,
+        ),
+        margin: 10,
+        getTitles: (value) {
+          if(value == 0)
+            return "Mon";
+          else if(value == 1)
+            return "Tue";
+          else if(value == 2)
+            return "Wed";
+          else if(value == 3)
+            return "Thu";
+          else if(value == 4)
+            return "Fri";
+          else if(value == 5)
+            return "Sat";
+          else if(value == 6)
+            return "Sun";
+          else
+            return "";
+        },
+      ),
+      leftTitles: SideTitles(
+        showTitles: true,
+        getTextStyles: (value) => const TextStyle(
+          color: Colors.white,
+          fontSize: 9,
+        ),
+        getTitles: (value) {
+          return getYLabel(value.toInt());
+        },
+        margin: 8,
+        reservedSize: 30,
+      ),
+    ),
+    borderData: FlBorderData(
+        show: true,
+        border: const Border(
+          bottom: BorderSide(
+            color: Color(0x99aa4cfc),
+            width: 2,
+          ),
+          left: BorderSide(
+            color: Colors.transparent,
+          ),
+          right: BorderSide(
+            color: Colors.transparent,
+          ),
+          top: BorderSide(
+            color: Colors.transparent,
+          ),
+        )),
+    minX: 0,
+    maxX: 6,
+    maxY: maxValue,
+    minY: 0,
+    lineBarsData: linesBarData2(),
+  );
+}
+
+  List<LineChartBarData> linesBarData2() {
+    return [
+      LineChartBarData(
+        spots: transactionChart,
+        isCurved: true,
+        colors: const [
+          Color(0x99aa4cfc),
+        ],
+        barWidth: 4,
+        isStrokeCapRound: true,
+        dotData: FlDotData(
+          show: false,
+        ),
+        belowBarData: BarAreaData(show: true, colors: [
+          const Color(0x33aa4cfc),
+        ]),
+      ),
+    ];
+  }
 }

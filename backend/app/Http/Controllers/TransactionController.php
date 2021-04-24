@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Transaction;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -98,6 +100,27 @@ class TransactionController extends Controller
 
         return response()->json([
             'message' => 'Successfully delete a transaction',
+        ], 200);
+    }
+
+    public function getWeekChart() {
+        $today = Carbon::now();
+        $startWeek = $today->startOfWeek()->format('Y-m-d');
+        $data = [];
+        $data['weekNumber'] = $today->weekOfMonth;
+        for($i = 0; $i < 7; $i++) {
+            $day = $today->startOfWeek()->addDay($i)->format('Y-m-d');
+            $transaction = DB::table('transactions')
+                           ->where('sell_at', $day)
+                           ->sum('price');
+            $data["totalTransaction"][$i] = (double) $transaction;
+        }
+        $maxValue = $data["totalTransaction"];
+        sort($maxValue);
+        $data["maxValue"] = (double) $maxValue[6];
+        return response()->json([
+            'message' => 'Successfully delete a transaction',
+            'data' => $data
         ], 200);
     }
 }

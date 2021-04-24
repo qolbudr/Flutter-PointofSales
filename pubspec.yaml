@@ -32,6 +32,8 @@ dependencies:
   http: ^0.13.1
   page_transition: ^1.1.7+6
   flutter_barcode_scanner: ^2.0.0
+  fl_chart: ^0.35.0
+  intl: "^0.16.1"
 
 dev_dependencies:
   flutter_test:

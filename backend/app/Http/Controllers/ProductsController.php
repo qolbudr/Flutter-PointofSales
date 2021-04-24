@@ -127,4 +127,12 @@ class ProductsController extends Controller
             'message' => 'Successfully delete a products'
         ]);
     }
+
+    public function search($name) {
+        $search = Products::where("name", "LIKE", "%$name%")->get();
+        return response()->json([
+            'message' => 'Successfully retrieve products',
+            'data' => $search
+        ], 200);
+    }
 }

@@ -17,6 +17,7 @@ class Product extends StatefulWidget {
 
 class _ProductState extends State<Product> {
   bool isLoading = true;
+  bool isEmpty = false;
   bool haveItem = false;
   int productCount;
   final searchController = TextEditingController();
@@ -95,6 +96,10 @@ class _ProductState extends State<Product> {
       },
     );
 
+    setState(() {
+      isLoading = true;
+    });
+
     if(this.mounted) {
       try {
         setState(() {
@@ -103,6 +108,7 @@ class _ProductState extends State<Product> {
           if(json.length > 0) {
             haveItem = true;
             isLoading = false;
+            isEmpty = false;
             productCount = json.length;
             product = json;
           } else {
@@ -113,6 +119,42 @@ class _ProductState extends State<Product> {
         print("Something was wrong");
       }
     }
+  }
+
+  void searchProduct(String text) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('loginToken');
+    String key = "Bearer $token";
+    List<dynamic> json;
+
+    if(text == "") {
+      return getProducts();
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final response = await http.get(
+      Uri.parse("$url/api/auth/products/search/$text"),
+      headers: <String, String> {
+        'Accept': 'application/json',
+        'Authorization': key,
+      },
+    );
+
+    setState(() {
+      if(response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        json = data["data"];
+        isLoading = false;
+        if(json.length == 0) {
+          return isEmpty = true;
+        }
+        product = json;
+        productCount = json.length;
+      }
+    });
   }
 
   void initState() {
@@ -140,6 +182,9 @@ class _ProductState extends State<Product> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            isLoading ?
+            LinearProgressIndicator(minHeight: 1, backgroundColor: Colors.blue)
+            : SizedBox(height: 1),
             Container(
               padding: EdgeInsets.all(15),
               child: Row(
@@ -148,13 +193,35 @@ class _ProductState extends State<Product> {
                 children: [
                   Container(
                     width: MediaQuery.of(context).size.width - 78,
-                    child: custom.CustomTextField(controller: searchController, hintText: "Search", obscureText: false)
+                    child: custom.CustomTextField(
+                      controller: searchController, 
+                      hintText: "Search", 
+                      obscureText: false,
+                      changed: searchProduct,
+                    )
                   ),
                   IconButton(icon: Icon(Icons.search), onPressed: scanBarcodeNormal, color: Colors.blue)
                 ],
               ),
             ),
-            SingleChildScrollView(
+            isEmpty ?
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height:80),
+                  Image.asset("images/box.png", width: 100),
+                  SizedBox(height: 20),
+                  Text("Products not found.", style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 20),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Text("Scan product's barcode to add your product to inventory", style: TextStyle(color: Colors.black, fontSize: 15), textAlign: TextAlign.center)
+                  ),
+                ],
+              ),
+            )
+            : SingleChildScrollView(
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height - 170,
@@ -199,10 +266,11 @@ class _ProductState extends State<Product> {
           children: [ 
             isLoading ?
             LinearProgressIndicator(minHeight: 1, backgroundColor: Colors.blue)
-            : SizedBox(height: 0),
+            : SizedBox(height: 1),
             SizedBox(height: MediaQuery.of(context).size.height*0.2),
             Center(
-              child: Column(
+              child: isLoading ? SizedBox(height: 10) :
+              Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset("images/box.png", width: 100),
