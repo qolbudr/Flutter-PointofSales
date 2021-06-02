@@ -118,7 +118,7 @@ class AddProductState extends State<AddProduct> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Hello please complete form below", style: TextStyle(color: Colors.black87, fontSize: 15)),
+                    Text("Enter form below to add products", style: TextStyle(color: Colors.black87, fontSize: 15)),
                     SizedBox(height: 10),
                     Text("Product Data", style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.bold)),
                     SizedBox(height: 20),

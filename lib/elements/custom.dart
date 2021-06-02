@@ -198,6 +198,47 @@ class ListProduct extends StatelessWidget {
   }
 }
 
+class ListTransaction extends StatelessWidget {
+  ListTransaction({this.price, this.name, this.delete});
+  final void Function() delete;
+  final String price, name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.black12)
+          )
+        ),
+        padding: EdgeInsets.symmetric(vertical: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              margin: EdgeInsets.only(right: 10),
+              child: Icon(Icons.bookmark_outline, size: 40, color: Colors.blue),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+                Text("Rp $price", style: TextStyle(fontSize: 12, color: Colors.black87)),
+              ],
+            ),
+        ],
+      ),
+    
+            IconButton(icon: Icon(Icons.delete), onPressed: delete),
+          ],
+        ) 
+      );        
+  }
+}
+
 PreferredSizeWidget customAppBar(text)  {
   return AppBar(
     elevation: 3,
@@ -216,6 +257,7 @@ class TransactionChart extends StatefulWidget {
 
 class _TransactionChart extends State<TransactionChart> { 
   String weekNumber = '0';
+  int even = 0;
   double maxValue = 0;
   List <dynamic> totalTransaction;
   List <FlSpot> transactionChart = [];
@@ -223,7 +265,7 @@ class _TransactionChart extends State<TransactionChart> {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 1.23,
+      aspectRatio: 1,
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -263,6 +305,8 @@ class _TransactionChart extends State<TransactionChart> {
                       letterSpacing: 2),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 5),
+                IconButton(icon: Icon(Icons.refresh), onPressed: getWeekChart),
                 const SizedBox(
                   height: 37,
                 ),
@@ -294,6 +338,11 @@ class _TransactionChart extends State<TransactionChart> {
   }
 
   void getWeekChart() async {
+    weekNumber = '0';
+    even = 0;
+    maxValue = 0;
+    totalTransaction = [0];
+    transactionChart = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('loginToken');
     String key = "Bearer $token";
@@ -320,14 +369,10 @@ class _TransactionChart extends State<TransactionChart> {
 
   String getYLabel(value) {
     var data;
-    totalTransaction.forEach((total) {
-      if(value == total) {
-        data = NumberFormat.compactCurrency(
-          decimalDigits: 0,
-          symbol: '',
-        ).format(total);
-      }
-    });
+    data = NumberFormat.compactCurrency(
+      decimalDigits: 0,
+      symbol: '',
+    ).format(value);
     return data;
   }
 
@@ -384,7 +429,15 @@ class _TransactionChart extends State<TransactionChart> {
           fontSize: 9,
         ),
         getTitles: (value) {
-          return getYLabel(value.toInt());
+          even++;
+          if(even % 2 != 0) {
+            if(value == maxValue) {
+              even = 0;
+            }
+            return getYLabel(value.toInt());
+          } else {
+            return '';
+          }
         },
         margin: 8,
         reservedSize: 30,

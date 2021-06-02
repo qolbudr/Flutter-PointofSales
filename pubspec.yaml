@@ -34,10 +34,18 @@ dependencies:
   flutter_barcode_scanner: ^2.0.0
   fl_chart: ^0.35.0
   intl: "^0.16.1"
+  flutter_svg: ^0.22.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.9.0
+  
+
+flutter_icons:
+   android: "launcher_icon"
+   ios: true
+   image_path: "images/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'elements/custom.dart' as custom;
 import 'elements/config.dart';
 import 'page/home.dart' as home;
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   runApp(new MaterialApp(
@@ -105,7 +106,12 @@ class _SplashState extends State<Splash> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 50),
+              SvgPicture.asset(
+                "images/logo-blue.svg",
+                width: 50,
+                color: Colors.white,
+                semanticsLabel: 'Acme Logo'
+              ),
             ],
           ),
         ),
@@ -157,7 +163,12 @@ class _PrepageState extends State<Prepage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: MediaQuery.of(context).size.height*0.25),
-            Icon(Icons.shopping_bag_outlined, color: Colors.blue, size: 100),
+            SvgPicture.asset(
+              "images/logo-blue.svg",
+              width: 100,
+              color: Colors.blue,
+              semanticsLabel: 'Acme Logo'
+            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -293,7 +304,12 @@ class _LoginState extends State<Login> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.shopping_bag_outlined, color: Colors.blue, size: 50)
+                        SvgPicture.asset(
+                          "images/logo-blue.svg",
+                          width: 50,
+                          color: Colors.blue,
+                          semanticsLabel: 'Acme Logo'
+                        ),
                       ],
                     ),
                     SizedBox(height: 30),

@@ -29,13 +29,13 @@ class _ProductState extends State<Product> {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.BARCODE);
       if(barcodeScanRes != "-1") {
-        final response = await http.get(Uri.parse("https://microservice.mitrainformatika.net/barcode/general/$barcodeScanRes"));
+        final response = await http.get(Uri.parse("http://myrental.expectron.tech/cek.php?code=$barcodeScanRes"));
         Map<String, dynamic> json = jsonDecode(response.body);
-        if(json["item_count"] != 0) {
+        if(json["status"] == 200) {
             Navigator.push(
               context,
                 PageTransition(
-                child: add.AddProduct(productsId: barcodeScanRes, name: json["item_data"][0]["name"]),
+                child: add.AddProduct(productsId: barcodeScanRes, name: json["name"]),
                 type: PageTransitionType.rightToLeft,
                 inheritTheme: true,
                 ctx: context
