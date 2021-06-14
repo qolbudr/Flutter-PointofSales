@@ -1,12 +1,35 @@
 ## Information System Point of Sales
+---
 
-This project is a starting point for a Flutter application.
+E-Business Technology and Infrastructure study program assignment at **State University of Surabaya**.
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+#### Feature
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Barcode Scanner
+2. Inventory Tracker
+3. Summary of Sales
+4. Weekly Sales Graph
+
+---
+
+#### Screenshot
+
+![alt text][splash]
+![alt text][landing]
+![alt text][login]
+![alt text][home]
+![alt text][qr]
+
+[splash]: flutter_01.png "Splash Screen"
+[landing]: flutter_02.png "Landing Screen"
+[login]: flutter_03.png "Login Screen"
+[home]: flutter_05.png "Home Screen"
+[qr]: flutter_08.png "Barcode Scanner"
+
+---
+
+#### Release
+
+<https://drive.google.com/file/d/1PMmv9ggewPac_kyiQmAiharEimPNxnkX/view?usp=sharing>
