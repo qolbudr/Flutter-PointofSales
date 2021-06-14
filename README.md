@@ -1,8 +1,4 @@
-# si_pos
-
-A new Flutter project.
-
-## Getting Started
+## Information System Point of Sales
 
 This project is a starting point for a Flutter application.
 
